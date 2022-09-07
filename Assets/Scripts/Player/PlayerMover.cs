@@ -8,72 +8,73 @@ public class PlayerMover : MonoBehaviour
     [SerializeField] private SpriteRenderer _playerSpriteRender;
     [SerializeField] private Rigidbody2D _rigidbody;
     [SerializeField] private Checker _groundChecker;
+    [SerializeField] private InputHandler _inputHandler;
 
     [SerializeField] private float _speed;
     [SerializeField] private float _jumpForce;
-    [SerializeField] private int _jumpAmount;
 
-    private int _jumpAmountLeft;
-    private bool _canJump;
+    private bool _doubleJump;
+    private bool _jumpInput;
+    private int _jumpAmount;
+    private int FaceDirection = 1;
 
     public bool IsGrounded { get; private set; }
     public bool InAir { get; private set; }
-    public float MoveHorizontal { get; private set; }
+    public float InputX { get; private set; }
 
     private void Update()
     {
         IsGrounded = _groundChecker.IsGrounded;
         InAir = _groundChecker.InAir;
-        CheckIfCanJump();
+        DoubleJumpChecker();
     }
 
     void FixedUpdate()
     {
-        InputMovementLogic();
+        LogicUpdate();
     }
 
-    private void CheckIfCanJump()
+    private void DoubleJumpChecker()
     {
-        if (IsGrounded && _rigidbody.velocity.y <= 0.01f)
+        if (IsGrounded)
         {
-            _jumpAmountLeft = _jumpAmount;
+            _doubleJump = false;
+            _jumpAmount = 0;
         }
-
-        /*if (isTouchingWall)
+        if (_jumpAmount == 1)
         {
-            checkJumpMultiplier = false;
-            canWallJump = true;
-        }*/
-
-        if (_jumpAmountLeft <= 0)
-        {
-            _canJump = false;
+            _doubleJump = true;
         }
         else
         {
-            _canJump = true;
+            _doubleJump = false;
         }
     }
 
-    private void InputMovementLogic()
+    private void LogicUpdate()
     {
-        MoveHorizontal = Input.GetAxis("Horizontal");
-        _rigidbody.velocity = new Vector2(MoveHorizontal * _speed, _rigidbody.velocity.y);
-        if (Input.GetKey(KeyCode.Space))
-            NormalJump();
-        Flip(MoveHorizontal);
-    }
-
-    private void NormalJump()
-    {
-        if (_canJump || (_canJump && InAir))
+        InputX = _inputHandler.NormInputX;
+        _jumpInput = _inputHandler.JumpInput;
+        OnMove();
+        if ((_jumpInput && IsGrounded) || (_jumpInput && !IsGrounded && _doubleJump))
         {
-            _rigidbody.AddForce(Vector2.up * _jumpForce, ForceMode2D.Impulse);
-            _jumpAmountLeft--;
+            OnJump();
+            _jumpAmount++;
         }
     }
 
-    private void Flip(float horizontValue)
+    private void OnMove()
+    {
+        _rigidbody.velocity = new Vector2(InputX * _speed, _rigidbody.velocity.y);
+        IfNeedFlip(InputX);
+    }
+
+    private void OnJump()
+    {
+        _rigidbody.AddForce(Vector2.up * _jumpForce, ForceMode2D.Impulse);
+    }
+
+    private void IfNeedFlip(float horizontValue)
     {
         if (horizontValue > 0.01f)
         {
