@@ -12,6 +12,7 @@ public class AnimationHandler : MonoBehaviour
     {
         _animator.SetBool("Idle",_mover.InputX == 0 && _mover.IsGrounded);
         _animator.SetBool("Move",_mover.InputX != 0 && _mover.IsGrounded);
-        _animator.SetBool("Jump",(!_mover.IsGrounded && _mover.InputX != 0) || !_mover.IsGrounded);
+        _animator.SetFloat("JumpVelocity",_mover.JumpVelocity);
+        _animator.SetBool("WallSliding",_mover.IsWallSliding);
     }
 }

@@ -22,6 +22,8 @@ public class InputHandler : MonoBehaviour
     {
         JumpInput = false;
         if (ctx.performed)
+        {
             JumpInput = true;
+        }
     }
 }

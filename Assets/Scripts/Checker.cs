@@ -5,23 +5,26 @@ using UnityEngine;
 public class Checker : MonoBehaviour
 {
     public bool IsGrounded { get; private set; }
-    public bool InAir { get; private set; }
+    public bool IsWallSliding { get; private set; }
     private void OnCollisionEnter2D(Collision2D collision)
     {
-        Grounded(collision, true, false);
+        TagChecker(collision, true);
     }
 
     private void OnCollisionExit2D(Collision2D collision)
     {
-        Grounded(collision, false, true);
+        TagChecker(collision, false);
     }
 
-    private void Grounded(Collision2D collision, bool groundValue, bool airValue)
+    private void TagChecker(Collision2D collision, bool value)
     {
         if (collision.gameObject.tag == ("Ground"))
         {
-            IsGrounded = groundValue;
-            InAir = airValue;
+            IsGrounded = value;
+        }
+        if (collision.gameObject.tag == ("Wall"))
+        {
+            IsWallSliding = value;
         }
     }
 }
